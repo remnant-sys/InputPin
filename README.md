@@ -4,7 +4,7 @@ Makes Steam Input follow window focus on KDE Plasma Wayland.
 
 Steam picks a controller config by watching the focused window, but it cannot see focus of
 Wayland windows ([steam-for-linux#13314](https://github.com/ValveSoftware/steam-for-linux/issues/13314)),
-so the controller stays on the Desktop Layout while a game runs. inputpin tracks focus itself
+so the controller stays on the Desktop Layout while a game runs. `inputpin` tracks focus itself
 and pins the matching config.
 
 ## How it works
