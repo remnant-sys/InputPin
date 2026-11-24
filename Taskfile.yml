@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+vars:
+  GREETING: Hello, world!
+
+tasks:
+  install_script:
+    - kpackagetool6 --type KWin/Script -u src/kwin/focus-relay/ || kpackagetool6 --type KWin/Script -i src/kwin/focus-relay/
+    - kwriteconfig6 --file kwinrc --group Plugins --key focus-relayEnabled true
+    - qdbus-qt6 org.kde.KWin /Scripting org.kde.kwin.Scripting.unloadScript focus-relay
+    - qdbus-qt6 org.kde.KWin /KWin reconfigure
+  uninstall_script:
+    cmds:
+      # reconfigure only walks installed packages, so a removed one would stay loaded
+      - qdbus-qt6 org.kde.KWin /Scripting org.kde.kwin.Scripting.unloadScript focus-relay
+      - kpackagetool6 --type KWin/Script --remove focus-relay
+  build:
+    cmds:
+      # --clear leaves a single wheel in dist/
+      - uv build --wheel --clear
+  install:
+    deps: [build]
+    cmds:
+      - pipx install --force dist/inputpin-*.whl

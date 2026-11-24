@@ -1,0 +1,20 @@
+{
+  "KPlugin": {
+    "Name": "Focus Relay",
+    "Description": "Emits dbus events on window focus change.",
+    "Icon": "preferences-system-windows",
+    "Authors": [
+      {
+        "Email": "",
+        "Name": ""
+      }
+    ],
+    "Id": "focus-relay",
+    "Version": "1.0",
+    "License": "GPL-3.0-or-later",
+    "Website": ""
+  },
+  "X-Plasma-API": "javascript",
+  "X-Plasma-MainScript": "code/main.js",
+  "KPackageStructure": "KWin/Script"
+}
