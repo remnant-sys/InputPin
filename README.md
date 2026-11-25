@@ -14,7 +14,8 @@ and pins the matching config.
 2. The service reads `SteamGameId` from `/proc/<pid>/environ`, which Steam sets for games and
    non-Steam shortcuts it launches.
 3. It runs `steam steam://forceinputappid/<appid>`, or pins `413080` (Desktop Layout) when the
-   window does not belong to a Steam-launched game.
+   window does not belong to a Steam-launched game. Steam's own window (`steamwebhelper`) gets
+   `0` instead, so Steam picks the Big Picture or Desktop config itself.
 
 On Ctrl-C it sends `steam://forceinputappid/0`, handing control back to Steam.
 
