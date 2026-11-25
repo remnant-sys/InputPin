@@ -10,6 +10,14 @@ def app_id(pid: int) -> int | None:
     return (game_id >> 32 or game_id) or None
 
 
+def is_steam_client(pid: int) -> bool:
+    """Whether pid is the Steam client UI, which renders both the library and Big Picture."""
+    try:
+        return Path(f"/proc/{pid}/comm").read_text().strip() == "steamwebhelper"
+    except OSError:  # the window's process already exited
+        return False
+
+
 def read_environ(pid: int) -> dict[str, str]:
     try:
         raw = Path(f"/proc/{pid}/environ").read_bytes()

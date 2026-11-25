@@ -18,7 +18,11 @@ class InputPin(ServiceInterface):
 
     @method()
     def focus(self, pid: DBusInt32):
-        appid = mapper.app_id(pid) or steam.DESKTOP_APPID
+        if mapper.is_steam_client(pid):
+            # Steam sees focus of its own windows and picks the Big Picture or Desktop config itself.
+            appid = 0
+        else:
+            appid = mapper.app_id(pid) or steam.DESKTOP_APPID
         print("focused pid:", pid, "appid:", appid)
         # each pin spawns the steam launcher, avoid pinning within the same window
         if appid != self._pinned:
