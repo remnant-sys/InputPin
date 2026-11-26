@@ -1,17 +1,35 @@
 import asyncio
+import os
 import subprocess
+from pathlib import Path
 
 # use steam app_id as the default because it contains the desktop preset
 DESKTOP_APPID = 413080
 # the config Steam itself activates for the Big Picture UI
 BIG_PICTURE_APPID = 769
+STEAM_DIR = Path.home() / ".steam"
 
 
-def pin(appid: int) -> None:
+def pin(appid: int) -> bool:
     """
     Force Steam Input to use the controller config of appid.
+    Returns False without pinning while Steam is closed, as the launcher would start it.
     """
+    if not is_running():
+        return False
     subprocess.Popen(["steam", f"steam://forceinputappid/{appid}"])
+    return True
+
+
+def is_running() -> bool:
+    # same check as is_steam_running() in steam.sh: steam.pid stays behind after exit,
+    # so the pid must also hold steam.pipe open to rule out a recycled pid
+    pipe = str(STEAM_DIR / "steam.pipe")
+    try:
+        pid = (STEAM_DIR / "steam.pid").read_text().strip()
+        return any(os.readlink(fd) == pipe for fd in Path(f"/proc/{pid}/fd").iterdir())
+    except OSError:  # no pid file, or the process exited
+        return False
 
 
 async def is_big_picture() -> bool:
@@ -28,7 +46,10 @@ async def is_big_picture() -> bool:
 
 async def _xprop(*args: str) -> str:
     process = await asyncio.create_subprocess_exec(
-        "xprop", *args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL
+        "xprop",
+        *args,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.DEVNULL,
     )
     out, _ = await process.communicate()
     return out.decode()

@@ -12,7 +12,7 @@ OBJECT_PATH = "/" + BUS_NAME.replace(".", "/")
 
 
 class InputPin(ServiceInterface):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(BUS_NAME)
         self._pinned: int | None = None
         self._wanted = 0  # config the focused window should get
@@ -20,7 +20,7 @@ class InputPin(ServiceInterface):
         self._focus_count = 0
 
     @method()
-    async def focus(self, pid: DBusInt32, x11: DBusBool):
+    async def focus(self, pid: DBusInt32, x11: DBusBool) -> None:
         self._focus_count += 1
         count = self._focus_count
         if mapper.is_steam_client(pid):
@@ -29,7 +29,9 @@ class InputPin(ServiceInterface):
             if count != self._focus_count:
                 return
             # not 0: Steam takes 12-15 s to notice Big Picture regained focus
-            self._wanted = steam.BIG_PICTURE_APPID if big_picture else steam.DESKTOP_APPID
+            self._wanted = (
+                steam.BIG_PICTURE_APPID if big_picture else steam.DESKTOP_APPID
+            )
         elif not (game := mapper.app_id(pid)):
             self._wanted = steam.DESKTOP_APPID
         elif x11 and mapper.has_steam_overlay(pid):
@@ -41,17 +43,23 @@ class InputPin(ServiceInterface):
         self._apply()
 
     @method()
-    def keyboard(self, shown: DBusBool):
+    def keyboard(self, shown: DBusBool) -> None:
         # Steam restores the controller after the keyboard only if nothing is pinned
         self._keyboard = shown
         self._apply()
 
-    def _apply(self):
+    def _apply(self) -> None:
         appid = 0 if self._keyboard else self._wanted
         # each pin spawns the steam launcher, avoid pinning within the same window
-        if appid != self._pinned:
-            steam.pin(appid)
-            self._pinned = appid
+        if appid == self._pinned:
+            return
+
+        if not steam.pin(appid):
+            # a Steam started later is unpinned
+            self._pinned = None
+            return
+
+        self._pinned = appid
 
 
 async def serve():
