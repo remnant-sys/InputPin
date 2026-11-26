@@ -16,8 +16,10 @@ and pins the matching config.
 3. It runs `steam steam://forceinputappid/<appid>`, or pins `413080` (Desktop Layout) when the
    window does not belong to a Steam-launched game. Steam's own windows (`steamwebhelper`) get
    `769` for Big Picture, recognised by the `STEAM_INPUT_FOCUS` X11 property, and `413080`
-   otherwise. X11 games with the Steam overlay loaded get `0`, since Steam follows their focus
-   itself and a pin would block the Steam menu.
+   otherwise. X11 games with the Steam overlay loaded, and Wayland games it hooked into (a
+   running `gameoverlayui -pid <pid>`), get `0`, since Steam follows their focus itself and a pin
+   would block the Steam menu. The overlay hooks in a few seconds after launch, so focus a
+   Wayland game again once if the Steam menu is blocked.
 4. While Steam's on-screen keyboard is open, the pin is lifted (`0`), and it is restored when
    the keyboard closes.
 

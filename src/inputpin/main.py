@@ -34,8 +34,10 @@ class InputPin(ServiceInterface):
             )
         elif not (game := mapper.app_id(pid)):
             self._wanted = steam.DESKTOP_APPID
-        elif x11 and mapper.has_steam_overlay(pid):
-            # Steam tracks X11 games itself, a pin would block the Steam menu
+        elif (x11 and mapper.has_steam_overlay(pid)) or mapper.steam_overlay_hooked(pid):
+            # Steam tracks X11 games itself and Wayland games through a hooked overlay,
+            # a pin would block the Steam menu. On the first focus after launch the overlay
+            # may not be up yet, so a Wayland game gets pinned
             self._wanted = 0
         else:
             self._wanted = game

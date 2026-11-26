@@ -25,6 +25,22 @@ def has_steam_overlay(pid: int) -> bool:
         return False
 
 
+def steam_overlay_hooked(pid: int) -> bool:
+    """Whether Steam's in-game overlay hooked into pid."""
+    # Steam preloads gameoverlayrenderer.so into every game, even with the overlay off,
+    # but starts "gameoverlayui -pid <pid>" only once the overlay hooked in
+    target = f"-pid\0{pid}\0".encode()
+    for proc in Path("/proc").glob("[0-9]*"):
+        try:
+            if (proc / "comm").read_text() == "gameoverlayui\n" and target in (
+                proc / "cmdline"
+            ).read_bytes():
+                return True
+        except OSError:  # the process already exited
+            continue
+    return False
+
+
 def read_environ(pid: int) -> dict[str, str]:
     try:
         raw = Path(f"/proc/{pid}/environ").read_bytes()
