@@ -21,7 +21,8 @@ and pins the matching config.
 4. While Steam's on-screen keyboard is open, the pin is lifted (`0`), and it is restored when
    the keyboard closes.
 
-On Ctrl-C it sends `steam://forceinputappid/0`, handing control back to Steam.
+On Ctrl-C it sends `steam://forceinputappid/0`, handing control back to Steam. Nothing is sent
+while Steam is closed, since the `steam` command would launch it.
 
 ## Install
 
